@@ -1,6 +1,7 @@
 #include "quaternion.hpp"
 #include "qpose.hpp"
 #include <iostream>
+#include <ctgmath>
 
 
 int main(void)
@@ -26,14 +27,32 @@ int main(void)
     
     delete myQuat;
 
+    /// Rotation storage tests:
+
+    Quaternion<float> rotQuat;
+
+    // encode a 180-deg rotation about the z-axis.
+    rotQuat.encodeRotation(M_PI/2, 0, 0, 1);
+
+    float rotQuatTheta, rotQuatX, rotQuatY, rotQuatZ;
+    rotQuat.getRotation(rotQuatTheta, rotQuatX, rotQuatY, rotQuatZ);
+
+    std::cout << "rotQuatTheta should be pi/2 and it's: " << rotQuatTheta 
+              << std::endl;
+    std::cout << "rotQuatX should be 0 and it's: " << rotQuatX << std::endl;
+    std::cout << "rotQuatY should be 0 and it's: " << rotQuatY << std::endl;
+    std::cout << "rotQuatZ should be 1 and it's: " << rotQuatZ << std::endl;
+
+
 
     QPose<float> myPose(1, 2, 3, 0, 0, 0);  // x, y, z, roll, pitch, yaw;
-    myPose.computeTranslation();
-    std::cout << "dual quaternion x should be 1, and it's: " 
-              << myPose.getX() << std::endl;
-    std::cout << "dual quaternion y should be 2, and it's: " 
-              << myPose.getY() << std::endl;
-    std::cout << "dual quaternion z should be 3, and it's: " 
-              << myPose.getZ() << std::endl;
+
+    float x, y, z;
+
+    myPose.getTranslation(x, y, z);
+    std::cout << "posX should be 1 and it's: " << x << std::endl;
+    std::cout << "posY should be 2 and it's: " << y << std::endl;
+    std::cout << "posZ should be 3 and it's: " << z << std::endl;
+
     return 0;
 }

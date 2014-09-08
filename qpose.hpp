@@ -12,9 +12,16 @@
 template <typename T> class QPose 
 {
     public:
+/**
+ * \brief default constructor.
+ */
         QPose()
         {}
 
+/**
+ * \brief constructor that takes cartesian coordinates and Euler angles as
+ *        arguments.
+ */
         QPose( T x, T y, T z, T roll, T pitch, T yaw)
         {
             // convert here.
@@ -29,7 +36,14 @@ template <typename T> class QPose
 
             dual_ = 0.5 * Quaternion<T>(0, x, y, z) * real_;
         }
-        
+
+/**
+ * \brief constructor that takes two quaternions as arguments. 
+ * \details The rotation
+ *          quaternion has the conventional encoding for a rotation as a 
+ *          quaternion. The translation quaternion is a quaternion with 
+ *          cartesian coordinates encoded as (0, x, y, z)
+ */
         QPose( Quaternion<T> rotation, Quaternion<T> translation)
         {
             real_ = rotation;
@@ -50,16 +64,28 @@ template <typename T> class QPose
             posZ_ = result.z_;
         }
 
+/** 
+ * \warning member function computeTranslation must first be applied to 
+ *          retrieve the latest translation data.
+ */
         T getX()
         {
             return posX_;
         }
 
+/** 
+ * \warning member function computeTranslation must first be applied to 
+ *          retrieve the latest translation data.
+ */
         T getY()
         {
             return posY_;
         }
 
+/** 
+ * \warning member function computeTranslation must first be applied to 
+ *          retrieve the latest translation data.
+ */
         T getZ()
         {
             return posZ_;
@@ -81,6 +107,29 @@ template <typename T> class QPose
         {
             return atan(2*((real_.w_ * real_.z_) + (real_.x_ * real_.y_)),
                         (1 - 2*((real_.y_*real_.y_) + (real_.z_*real_.z_))));
+        }
+
+
+/**
+ * \brief a reference-based (preferred) method for acquiring the latest 
+ *        translation data.
+ */
+        void getTranslation( T& x, T& y, T& z)
+        {
+            computeTranslation();
+            x = posX_;
+            y = posY_;
+            z = posZ_;
+        }
+
+/**
+ * \brief a reference-based method for acquiring the latest rotation data.
+ */
+        void getEuler( T& roll, T& pitch, T& yaw)
+        {
+            roll = getRoll();
+            pitch = getPitch();
+            yaw = getYaw();
         }
 
     private:

@@ -9,6 +9,16 @@
 #include <iostream>
 #include <ctgmath>
 
+
+
+/**
+ * \class Quaternion
+ * \brief a templated quaternion class that also enables quick storage and
+ *        retrieval of rotations encoded as a vector3 and angle.
+ * \details All angles are in radians.
+ * \warning This template is intended to be instantiated with a floating point
+ *          data type.
+ */
 template <typename T> class Quaternion
 {
     public:
@@ -19,6 +29,46 @@ template <typename T> class Quaternion
 
         ~Quaternion()
         {}
+
+
+/** 
+ * Quaternion Rotation Properties for straightforward usage of quaternions
+ *  to store rotations.
+ */
+
+/**
+ * \fn void encodeRotation( T theta, T x, T y, T z)
+ * \brief Store a normalized rotation in the quaternion
+ */
+        void encodeRotation( T theta, T x, T y, T z)
+        {
+            w_ = cos(theta / 2);
+            x_ = x * sin(theta / 2);
+            y_ = y * sin(theta / 2);
+            z_ = z * sin(theta / 2);
+            normalize();
+        }
+
+/**
+ * \fn void getRotation( T& theta, T& x, T& y, T& z)
+ * \brief Retrieve the rotation (vector3 and angle ) stored in the quaternion.
+ */
+    void getRotation( T& theta, T& x, T& y, T& z)
+    {
+        theta = 2 * acos(w_);
+        
+        T commonVal = sin(theta /2);
+        
+        x = x_ / commonVal;
+        y = y_ / commonVal;
+        z = z_ / commonVal;
+    }
+
+
+
+/** 
+ * Quaternion Mathematical Properties 
+ * implemented below */
 
 /// Addition
         Quaternion operator+(const Quaternion& q2)
@@ -76,6 +126,10 @@ template <typename T> class Quaternion
         }
 
 // Normalization
+/**
+ * \fn void normalize()
+ * \brief normalizes the quaternion to magnitude 1
+ */
         void normalize()
         {
             T magnitude = norm();
