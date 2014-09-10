@@ -54,5 +54,17 @@ int main(void)
     std::cout << "posY should be 2 and it's: " << y << std::endl;
     std::cout << "posZ should be 3 and it's: " << z << std::endl;
 
+    
+    std::cout << "Quaternion slerp" << std::endl;
+    Quaternion<float> qa(0, 0, 0, 1);
+    Quaternion<float> qb(0, 0, 1, 0);
+    Quaternion<float> result;
+
+    for (float i = 0; i < 1; i += 0.05)
+    {
+        result = Quaternion<float>::slerp(qa, qb, i);
+        std::cout << "slerp result:" << result << std::endl;
+    }
+
     return 0;
 }

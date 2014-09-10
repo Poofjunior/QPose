@@ -108,20 +108,53 @@ template <typename T> class Quaternion
         {
             return Quaternion(  
                         ((w_*q2.w_) - (x_*q2.x_) - (y_*q2.y_) - (z_*q2.z_)),
-                        ((w_*q2.x_) + (x_*q2.w_) + (y_*q2.z_) - (z_*q2.y_)),
-                        ((w_*q2.y_) - (x_*q2.z_) + (y_*q2.w_) + (z_*q2.x_)),
-                        ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_)));
-        }
+                        ((w_*q2.x_) + (x_*q2.w_) + (y_*q2.z_) - (z_*q2.y_)), 
+                        ((w_*q2.y_) - (x_*q2.z_) + (y_*q2.w_) + (z_*q2.x_)), 
+                        ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_))); 
+        } 
 
-/// Conjugate
-        Quaternion conj()
+/// Quaternion Power function
+/**
+ * \fn static Quaternion power(const Quaternion q1, T p)
+ * \brief perform the power operation on a quaternion
+ * \details A quaternion Q = (w, x, y, z) may be written as the
+ * product of a scalar and a unit quaternion: Q = N*q = 
+ * N[sin(theta) + U_x*cos(theta) + U_y*cos(theta) + U_k*cos(theta)], where N is
+ * a scalar and U is a vector3 (U_x, U_y, U_z) representing the normalized
+ * vector component of the original quaternion, aka: (x,y,z). Raising a 
+ * quaternion to a power can be done most easily in this form.
+ */
+        static Quaternion power(Quaternion q1, T p)
         {
-            return Quaternion(  w_, -x_, -y_, -z_);
-        }
+            T magnitude = q1.norm();
 
-/// Norm
-        T norm()
-        {
+            Quaternion unitQuaternion = q1;
+            unitQuaternion.normalize();
+            
+            T theta = acos(unitQuaternion.w_);
+
+         // Perform math:
+         // N^p * [cos(p * theta)  + U*sin(p * theta)], where U is a vector.
+            T poweredMag = pow(magnitude, p);  // N^p
+            T cospTheta = cos(p * theta);   
+            T sinpTheta = sin(p * theta);
+            // Note: U_x, U_y, U_z exist in normalized q1.
+
+            return Quaternion( poweredMag * cospTheta,
+                               poweredMag * unitQuaternion.x_ * sinpTheta,
+                               poweredMag * unitQuaternion.y_ * sinpTheta,
+                               poweredMag * unitQuaternion.z_ * sinpTheta);
+        } 
+
+/// Conjugate 
+        Quaternion conj() 
+        { 
+            return Quaternion(  w_, -x_, -y_, -z_); 
+        } 
+
+/// Norm T 
+        T norm() 
+        { 
             return sqrt((w_ * w_) + (x_ * x_) + (y_ * y_) + (z_ * z_));
         }
 
@@ -149,6 +182,34 @@ template <typename T> class Quaternion
             T magnitude = norm();
             return (1/magnitude) * (*this);
         }
+
+/**
+ * \fn static Quaternion slerp( Quaternion q1 Quaternion q2, 
+ *                                 T percentage)
+ * \brief return a quaternion that is a linear interpolation between q1 and q2
+ *        where percentage (from 0 to 1) defines the amount of interpolation
+ */
+        static Quaternion slerp( Quaternion q1, Quaternion q2, T percentage)
+        {
+            try 
+            {
+                if ((percentage > 1) || (percentage < 0))
+                    throw 0;
+            }
+            catch(int e)
+            {
+                std::cout << "error: interpolation factor outside 0 to 1 "
+                          << "bound." << std::endl;
+            }
+
+            Quaternion result;
+
+            // math is trivial once the power function is defined.
+            result = q1 * power( ( (1/q1.norm()) * q1.conj() * q2), 
+                                 percentage);
+            return result;
+        }
+
 /**
  * \fn template <typename U> friend std::ostream& operator << 
  *                                  (std::ostream& os, const Quaternion<U>& q);
