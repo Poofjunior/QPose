@@ -52,18 +52,40 @@ template <typename T> class Quaternion
 /**
  * \fn void getRotation( T& theta, T& x, T& y, T& z)
  * \brief Retrieve the rotation (vector3 and angle ) stored in the quaternion.
+ * \warning only unit quaternions represent rotation. 
+ * \details A quaternion:
+ * Q = cos(alpha) + Usin(alpha), where U is a vector3, stores a rotation
+ * of 2*alpha about the 3D axis U.
  */
     void getRotation( T& theta, T& x, T& y, T& z)
     {
-        theta = 2 * acos(w_);
+        // Acquire the amount of rotation.
+        theta = 2 * acos(w_);   
         
         T commonVal = sin(theta /2);
-        
+
+        // Acquire rotational axis. 
         x = x_ / commonVal;
         y = y_ / commonVal;
         z = z_ / commonVal;
     }
 
+
+/**
+ * \fn void rotate( T& x, T& y, T& z)
+ * \brief rotate a vector3 (x,y,z) by the angle theta about the axis 
+ * (U_x, U_y, U_z) stored in the quaternion.
+ */
+    void rotate(T& x, T& y, T& z)
+    {
+        Quaternion q = (*this);
+        Quaternion qStar = (*this).conj();
+        Quaternion rotatedVal = q * Quaternion(0, x, y, z) * qStar;
+                                
+        x = rotatedVal.x_;
+        y = rotatedVal.y_;
+        z = rotatedVal.z_;
+    }
 
 
 /** 
@@ -152,10 +174,23 @@ template <typename T> class Quaternion
             return Quaternion(  w_, -x_, -y_, -z_); 
         } 
 
-/// Norm T 
+/// Norm 
         T norm() 
         { 
             return sqrt((w_ * w_) + (x_ * x_) + (y_ * y_) + (z_ * z_));
+        }
+
+/// magnitude
+        T magnitude()
+        {
+            //return ((*this) * (*this).conj()).w_; 
+            return (*this).norm();
+        }
+
+/// inverse 
+        Quaternion inverse()
+        {
+            return (1/(*this).norm()) * (*this).conj(); 
         }
 
 // Normalization
@@ -165,9 +200,9 @@ template <typename T> class Quaternion
  */
         void normalize()
         {
-            T magnitude = norm();
+            T theNorm = norm();
             // TODO: is default assignment operator OK?
-            (*this) = (1/magnitude) * (*this); 
+            (*this) = (1/theNorm) * (*this); 
             return;
         }
 
@@ -188,6 +223,7 @@ template <typename T> class Quaternion
  *                                 T percentage)
  * \brief return a quaternion that is a linear interpolation between q1 and q2
  *        where percentage (from 0 to 1) defines the amount of interpolation
+ * \details morph one quaternion into the other with constant 'velocity.'
  */
         static Quaternion slerp( Quaternion q1, Quaternion q2, T percentage)
         {

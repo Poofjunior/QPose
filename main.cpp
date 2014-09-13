@@ -60,11 +60,33 @@ int main(void)
     Quaternion<float> qb(0, 0, 1, 0);
     Quaternion<float> result;
 
-    for (float i = 0; i < 1; i += 0.05)
+    for (float i = 0; i <= 1.001; i += 0.05)
     {
         result = Quaternion<float>::slerp(qa, qb, i);
-        std::cout << "slerp result:" << result << std::endl;
+        std::cout << "slerp result from " << i << "is " 
+                  << result << std::endl;
     }
 
-    return 0;
+
+    float v_x, v_y, v_z;
+    v_x = 0;
+    v_y = 1;
+    v_z = 0;
+    
+    // Rotation of 2 * (M_PI/4) about (0,0,1)
+    Quaternion<float> rotationZ;
+    rotationZ.encodeRotation(-M_PI/2, 0, 0, 1);
+    
+    std::cout << "Vector3 before rotation: (" << v_x << ", " << v_y << ", " 
+              << v_z << ")" << std::endl;
+
+    rotationZ.rotate(v_x, v_y, v_z);
+
+    std::cout << "Vector3 after rotation: (" << v_x << ", " << v_y << ", " 
+              << v_z << ")" << std::endl;
+
+
+    
+// testing!
+
 }
