@@ -50,17 +50,23 @@ template <typename T> class Quaternion
         }
 
 /**
- * \fn void getRotation( T& theta, T& x, T& y, T& z)
- * \brief Retrieve the rotation (vector3 and angle ) stored in the quaternion.
+ * \fn void getRotation( T& angle, T& x, T& y, T& z)
+ * \brief Retrieve the rotation (angle and vector3) stored in the quaternion.
  * \warning only unit quaternions represent rotation. 
  * \details A quaternion:
- * Q = cos(alpha) + Usin(alpha), where U is a vector3, stores a rotation
- * of 2*alpha about the 3D axis U.
+ *          Q = cos(alpha) + Usin(alpha), where U is a vector3, stores a 
+            rotation
+ *          of 2*alpha about the 3D axis U. This member function retrieves 
+            theta and U, where theta = 2*alpha is the amount of rotation 
+            about the vector U.
+ * \note the angle retrieved is in radians.
  */
     void getRotation( T& theta, T& x, T& y, T& z)
     {
         // Acquire the amount of rotation.
-        theta = 2 * acos(w_);   
+        // theta = 2 * acos(w_);   
+        /// The following is 'more numerically stable' according to Wikipedia:
+        theta = 2 * atan2( norm(), w_);
         
         T commonVal = sin(theta /2);
 
