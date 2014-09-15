@@ -91,8 +91,16 @@ int main(void)
     Quaternion<float> qTrans(0, 1, 0, 0);
 
     QPose<float> myNewPose(qRot, qTrans);
+    std::cout << std::endl;
     std::cout << "myNewPose is: " << myNewPose << std::endl;
+
+    std::cout << " Input Rotation is: " << qRot << std::endl;
+    std::cout << "Rotation quaternion is: " << myNewPose.getRotation()  
+              << std::endl;
     
+    std::cout << " Input Translation is: " << qTrans << std::endl;
+    std::cout << "Translation quaternion is: " << myNewPose.getTranslation()  
+              << std::endl;
 
 
     

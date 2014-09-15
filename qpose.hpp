@@ -64,7 +64,7 @@ template <typename T> class QPose
             posZ_ = result.z_;
         }
 
-        
+/// Extracting Translation
 /**
  * \brief a reference-based (preferred) method for acquiring the latest 
  *        translation data.
@@ -77,6 +77,12 @@ template <typename T> class QPose
             z = posZ_;
         }
 
+        Quaternion<T> getTranslation()
+        {
+            return 2 * dual_ * real_.conj();
+        }
+
+/// Extracting Rotation
 /**
  * \brief a reference-based method for acquiring the latest rotation data.
  */
@@ -86,6 +92,12 @@ template <typename T> class QPose
             pitch = getPitch();
             yaw = getYaw();
         }
+
+        Quaternion<T> getRotation()
+        {
+            return real_;
+        }
+
 
 /// Addition:
         QPose operator+(const QPose& q2)
