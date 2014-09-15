@@ -64,9 +64,10 @@ template <typename T> class Quaternion
     void getRotation( T& theta, T& x, T& y, T& z)
     {
         // Acquire the amount of rotation.
-        // theta = 2 * acos(w_);   
+         theta = 2 * acos(w_);   
         /// The following is 'more numerically stable' according to Wikipedia:
-        theta = 2 * atan2( norm(), w_);
+        /// but it doesn't work as well for small angles.
+        //theta = 2 * atan2( norm(), w_);
         
         T commonVal = sin(theta /2);
 

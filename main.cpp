@@ -86,6 +86,16 @@ int main(void)
               << v_z << ")" << std::endl;
 
 
+    Quaternion<float> qRot;
+    qRot.encodeRotation(M_PI/2, 0, 1, 0);
+    Quaternion<float> qTrans(0, 1, 0, 0);
+
+    QPose<float> myNewPose(qRot, qTrans);
+    std::cout << "myNewPose is: " << myNewPose << std::endl;
+    
+
+
+    
     
 // testing!
 

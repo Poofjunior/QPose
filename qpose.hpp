@@ -64,52 +64,7 @@ template <typename T> class QPose
             posZ_ = result.z_;
         }
 
-/** 
- * \warning member function computeTranslation must first be applied to 
- *          retrieve the latest translation data.
- */
-        T getX()
-        {
-            return posX_;
-        }
-
-/** 
- * \warning member function computeTranslation must first be applied to 
- *          retrieve the latest translation data.
- */
-        T getY()
-        {
-            return posY_;
-        }
-
-/** 
- * \warning member function computeTranslation must first be applied to 
- *          retrieve the latest translation data.
- */
-        T getZ()
-        {
-            return posZ_;
-        }
         
-        T getRoll()
-        {
-            // TODO: verify this!
-            return atan(2*((real_.w_ * real_.x_) + (real_.y_ * real_.z_)),
-                        (1 - 2*((real_.x_*real_.x_) + (real_.y_*real_.y_))));
-        }
-
-        T getPitch()
-        {
-            return asin(2*(real_.w_ * real_.y_ - real_.z_ * real_.x_));
-        }
-
-        T getYaw()
-        {
-            return atan(2*((real_.w_ * real_.z_) + (real_.x_ * real_.y_)),
-                        (1 - 2*((real_.y_*real_.y_) + (real_.z_*real_.z_))));
-        }
-
-
 /**
  * \brief a reference-based (preferred) method for acquiring the latest 
  *        translation data.
@@ -132,6 +87,68 @@ template <typename T> class QPose
             yaw = getYaw();
         }
 
+/// Addition:
+        QPose operator+(const QPose& q2)
+        {
+            QPose result;
+            result.real_ = real_ + q2.real_;
+            result.dual_ = dual_ + q2.dual_;
+            return result;
+        }
+
+/// Subtraction:
+        QPose operator-(const QPose& q2)
+        {
+            QPose result;
+            result.real_ = real_ - q2.real_;
+            result.dual_ = dual_ - q2.dual_;
+            return result;
+        }
+
+/// (left) Scalar Multiplication
+/**
+ * \fn template <typename U> friend Quaternion operator*(const U scalar, 
+ * \brief implements scalar multiplication for arbitrary scalar types
+ */
+        template <typename U> friend QPose operator*(const U scalar,
+                                                      const QPose& q) 
+        {                                                                       
+            QPose result;
+            // Luckily, left-scalar multiplication is implemented for
+            // Quaternions.
+            result.real_ = scalar * q.real_;
+            result.dual_ = scalar * q.dual_;
+            return result;
+        }                                                                       
+              
+
+/// Dual Quaternion Product:
+        QPose operator*(const QPose& q2)
+        {
+            QPose result;
+            result.real_ = real_ * q2.real_;
+            result.dual_ = (real_ * q2.dual_) + (dual_ * q2.real_);
+            return result;
+        }
+
+/// Conjugate
+        QPose conj()
+        {
+            QPose result; 
+            result.real_ = real_.conj();
+            result.dual_ = dual_.conj();
+        }
+
+/// Magnitude
+//TODO: verify this!
+        T magnitude()
+        {
+            QPose result = (*this) * (*this).conj();
+            std::cout << result.real_;
+            return result.real_.w_;
+        }
+
+
     private:
         Quaternion<T> real_;
         Quaternion<T> dual_;
@@ -148,5 +165,39 @@ template <typename T> class QPose
         T posX_;
         T posY_;
         T posZ_;
+
+        T getRoll()
+        {
+            // TODO: verify this!
+            return atan2(2*((real_.w_ * real_.x_) + (real_.y_ * real_.z_)),
+                        (1 - 2*((real_.x_*real_.x_) + (real_.y_*real_.y_))));
+        }
+
+        T getPitch()
+        {
+            return asin(2*(real_.w_ * real_.y_ - real_.z_ * real_.x_));
+        }
+
+        T getYaw()
+        {
+            return atan2(2*((real_.w_ * real_.z_) + (real_.x_ * real_.y_)),
+                        (1 - 2*((real_.y_*real_.y_) + (real_.z_*real_.z_))));
+        }
+
+/**
+ * \brief a friend function for printing
+ */
+        template <typename U> friend std::ostream& operator<< 
+                                                    (std::ostream& os,
+                                                     const QPose<U>& q);
 };
+
+template <typename T> std::ostream& operator<< (std::ostream& os,               
+                                const QPose<T>& q)                         
+{                                                                               
+    os << "[" << q.real_ << ", " <<                                                
+                 q.dual_ << ", " << "]" << std::endl;                                                   
+    return os;                                                                  
+} 
+
 #endif //QPOSE_HPP
