@@ -18,7 +18,7 @@ come with working with dual quaternions, including some semblance of
 Dual Quaternions play a vital role in manipulating objects in 3D. 
 Traditionally, homogeneous transformation matrices and linear algebra are used 
 to encode and 
-manipulate an objects position and orientation. Dual Quaternions are less 
+manipulate an object's position and orientation. Dual Quaternions are less 
 operation-intensive (they require less calculations) and avoid some 
 singularities that occur when encoding 3D position and orientation with 
 Matrices. They can also be smoothly interpolated from one Dual Quaternion to 
