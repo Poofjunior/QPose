@@ -99,6 +99,13 @@ template <typename T> class QPose
         }
 
 
+/// Extraction everything (in a nice format)
+    void get6DOF( T& x, T& y, T& z, T& roll, T& pitch, T& yaw)
+    {
+        getTranslation(x, y, z);
+        getEuler(roll, pitch, yaw);
+    }
+
 /// Addition:
         QPose operator+(const QPose& q2)
         {
