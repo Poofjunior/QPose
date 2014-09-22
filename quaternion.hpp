@@ -155,18 +155,28 @@ template <typename T> class Quaternion
  */
         static Quaternion power(Quaternion q1, T p)
         {
-            T magnitude = q1.norm();
+            T magnitude = q1.norm();    
 
             Quaternion unitQuaternion = q1;
             unitQuaternion.normalize();
-            
+
+            // unitQuaternion.w_ will always be less than 1, so no domain
+            // error.
             T theta = acos(unitQuaternion.w_);
+
 
          // Perform math:
          // N^p * [cos(p * theta)  + U*sin(p * theta)], where U is a vector.
             T poweredMag = pow(magnitude, p);  // N^p
             T cospTheta = cos(p * theta);   
             T sinpTheta = sin(p * theta);
+/*
+            std::cout << "poweredMag is " << poweredMag << std::endl;
+            std::cout << "cospTheta is " << cospTheta << std::endl;
+            std::cout << "p * Theta is " << p * theta << std::endl;
+            std::cout << "sinpTheta is " << sinpTheta << std::endl;
+*/
+
             // Note: U_x, U_y, U_z exist in normalized q1.
 
             return Quaternion( poweredMag * cospTheta,
@@ -174,6 +184,16 @@ template <typename T> class Quaternion
                                poweredMag * unitQuaternion.y_ * sinpTheta,
                                poweredMag * unitQuaternion.z_ * sinpTheta);
         } 
+
+/**
+ * \fn static T dotProduct(Quaternion q1, Quaternion q2)
+ * \brief returns the dot product of two quaternions.
+ */
+        static T dotProduct(Quaternion q1, Quaternion q2)
+        {
+            T result = 0.5 * ((q1.conj() * q2) + (q1 * q2.conj()) ).w_; 
+            return result; 
+        }
 
 /// Conjugate 
         Quaternion conj() 
@@ -208,8 +228,7 @@ template <typename T> class Quaternion
         void normalize()
         {
             T theNorm = norm();
-            // TODO: is default assignment operator OK?
-            (*this) = (1/theNorm) * (*this); 
+            (*this) = (1.0/theNorm) * (*this); 
             return;
         }
 
@@ -247,9 +266,10 @@ template <typename T> class Quaternion
 
             Quaternion result;
 
-            // math is trivial once the power function is defined.
-            result = q1 * power( ( (1/q1.norm()) * q1.conj() * q2), 
-                                 percentage);
+            T theta = acos(dotProduct(q1, q2));
+            T leftCoeff = sin((1 - percentage) * theta)/sin(theta);
+            T rightCoeff  = sin(percentage * theta) / sin(theta);
+            result = leftCoeff * q1 + rightCoeff * q2;
             return result;
         }
 

@@ -8,7 +8,26 @@ int main(void)
 {
     Quaternion<float>* myQuat = new Quaternion<float>(1.0, 2.0, 3.0, 4.0);
     Quaternion<float> myOtherQuat(1.0, 1.0, 0.0, 2.0);
+    
+/*
+    std::cout << "My Quaternion: " << *myQuat << std::endl;
+    std::cout << "My other Quaternion: " << myOtherQuat << std::endl;
+    
+    std::cout << "MyQuat to the power of 3 " 
+              << Quaternion<float>::power(*myQuat, 3) 
+              << std::endl;
+    std::cout << "MyQuat " << *myQuat << std::endl;
+    std::cout << "MyQuat * myQuat * myQuat = " << *myQuat * *myQuat * *myQuat 
+              << std::endl;
+    std::cout << "MyQuat magnitude " 
+              << Quaternion<float>::power(*myQuat, 3).magnitude()
+              << std::endl; 
+    std::cout << "MyQuat magnitude " << myQuat->magnitude() << std::endl;
 
+    delete myQuat;
+*/
+
+/*
     std::cout << "My Quaternion: " << *myQuat << std::endl;
     std::cout << "My other Quaternion: " << myOtherQuat << std::endl;
 
@@ -101,10 +120,20 @@ int main(void)
     std::cout << " Input Translation is: " << qTrans << std::endl;
     std::cout << "Translation quaternion is: " << myNewPose.getTranslation()  
               << std::endl;
+*/
 
-
-    
     
 // testing!
+    myQuat->normalize();
+    myOtherQuat.normalize();
+
+    Quaternion<float> slerpOut;
+    for (float i = 0; i <= 1; i += 0.05)
+    {
+        slerpOut = Quaternion<float>::slerp(*myQuat, myOtherQuat, i);
+        //std::cout << slerpOut << std::endl;
+        //std::cout << "percentage: " << i << std::endl;
+        std::cout << "slerpOut magnitude: " << slerpOut.norm() << std::endl;
+    }
 
 }
