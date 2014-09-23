@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <ctgmath>
+#include "commonMath.hpp"
 
 
 
@@ -267,9 +268,24 @@ template <typename T> class Quaternion
             Quaternion result;
 
             T theta = acos(dotProduct(q1, q2));
-            T leftCoeff = sin((1 - percentage) * theta)/sin(theta);
-            T rightCoeff  = sin(percentage * theta) / sin(theta);
+            T leftCoeff;
+            T rightCoeff;
+
+            if (CommonMath::almostEqual(theta, 0, 1000))
+            {
+                leftCoeff = 0;    
+                rightCoeff = 0;
+            }
+            else
+            {
+                leftCoeff = sin((1 - percentage)) * theta/
+                              sin(theta);
+                rightCoeff  = sin(percentage * theta) / 
+                                sin(theta);
+            }
+
             result = leftCoeff * q1 + rightCoeff * q2;
+            result.normalize();
             return result;
         }
 

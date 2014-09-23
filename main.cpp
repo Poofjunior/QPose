@@ -124,6 +124,9 @@ int main(void)
 
     
 // testing!
+    myQuat->encodeRotation(0, 0, 1, 0);
+    myOtherQuat.encodeRotation(M_PI, 0, 1, 0);
+
     myQuat->normalize();
     myOtherQuat.normalize();
 
@@ -131,7 +134,7 @@ int main(void)
     for (float i = 0; i <= 1; i += 0.05)
     {
         slerpOut = Quaternion<float>::slerp(*myQuat, myOtherQuat, i);
-        //std::cout << slerpOut << std::endl;
+        std::cout << slerpOut << std::endl;
         //std::cout << "percentage: " << i << std::endl;
         std::cout << "slerpOut magnitude: " << slerpOut.norm() << std::endl;
     }
