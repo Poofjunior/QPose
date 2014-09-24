@@ -39,7 +39,8 @@ template <typename T> class Quaternion
 
 /**
  * \fn void encodeRotation( T theta, T x, T y, T z)
- * \brief Store a normalized rotation in the quaternion
+ * \brief Store a normalized rotation in the quaternion encoded as a rotation 
+ *        of theta about the vector (x,y,z).
  */
         void encodeRotation( T theta, T x, T y, T z)
         {
@@ -228,6 +229,10 @@ template <typename T> class Quaternion
  */
         void normalize()
         {
+            // should never happen unless the quaternion wasn't initialized
+            // correctly.
+            // TODO: implement this in the main quaternion repo
+            assert( !((w_ == 0) && (x_ == 0) && (y_ == 0) && (z_ == 0)));
             T theNorm = norm();
             (*this) = (1.0/theNorm) * (*this); 
             return;
@@ -251,6 +256,7 @@ template <typename T> class Quaternion
  * \brief return a quaternion that is a linear interpolation between q1 and q2
  *        where percentage (from 0 to 1) defines the amount of interpolation
  * \details morph one quaternion into the other with constant 'velocity.'
+ *          Implementation details from Wikipedia article on Slerp.
  */
         static Quaternion slerp( Quaternion q1, Quaternion q2, T percentage)
         {
@@ -273,12 +279,14 @@ template <typename T> class Quaternion
 
             if (CommonMath::almostEqual(theta, 0, 1000))
             {
-                leftCoeff = 0;    
-                rightCoeff = 0;
+                /// as theta --> 0, SLERP becomes LERP.
+                /// see Wikipedia slerp article.
+                leftCoeff = (1 - percentage);    
+                rightCoeff = percentage;
             }
             else
             {
-                leftCoeff = sin((1 - percentage)) * theta/
+                leftCoeff = sin((1 - percentage) * theta)/
                               sin(theta);
                 rightCoeff  = sin(percentage * theta) / 
                                 sin(theta);
