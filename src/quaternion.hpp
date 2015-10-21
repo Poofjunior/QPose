@@ -32,14 +32,14 @@ template <typename T> class Quaternion
         {}
 
 
-/** 
+/**
  * Quaternion Rotation Properties for straightforward usage of quaternions
  *  to store rotations.
  */
 
 /**
  * \fn void encodeRotation( T theta, T x, T y, T z)
- * \brief Store a normalized rotation in the quaternion encoded as a rotation 
+ * \brief Store a normalized rotation in the quaternion encoded as a rotation
  *        of theta about the vector (x,y,z).
  */
         void encodeRotation( T theta, T x, T y, T z)
@@ -54,26 +54,26 @@ template <typename T> class Quaternion
 /**
  * \fn void getRotation( T& angle, T& x, T& y, T& z)
  * \brief Retrieve the rotation (angle and vector3) stored in the quaternion.
- * \warning only unit quaternions represent rotation. 
+ * \warning only unit quaternions represent rotation.
  * \details A quaternion:
- *          Q = cos(alpha) + Usin(alpha), where U is a vector3, stores a 
+ *          Q = cos(alpha) + Usin(alpha), where U is a vector3, stores a
             rotation
- *          of 2*alpha about the 3D axis U. This member function retrieves 
-            theta and U, where theta = 2*alpha is the amount of rotation 
+ *          of 2*alpha about the 3D axis U. This member function retrieves
+            theta and U, where theta = 2*alpha is the amount of rotation
             about the vector U.
  * \note the angle retrieved is in radians.
  */
     void getRotation( T& theta, T& x, T& y, T& z)
     {
         // Acquire the amount of rotation.
-         theta = 2 * acos(w_);   
+         theta = 2 * acos(w_);
         /// The following is 'more numerically stable' according to Wikipedia:
         /// but it doesn't work as well for small angles.
         //theta = 2 * atan2( norm(), w_);
-        
+
         T commonVal = sin(theta /2);
 
-        // Acquire rotational axis. 
+        // Acquire rotational axis.
         x = x_ / commonVal;
         y = y_ / commonVal;
         z = z_ / commonVal;
@@ -82,7 +82,7 @@ template <typename T> class Quaternion
 
 /**
  * \fn void rotate( T& x, T& y, T& z)
- * \brief rotate a vector3 (x,y,z) by the angle theta about the axis 
+ * \brief rotate a vector3 (x,y,z) by the angle theta about the axis
  * (U_x, U_y, U_z) stored in the quaternion.
  */
     void rotate(T& x, T& y, T& z)
@@ -90,23 +90,23 @@ template <typename T> class Quaternion
         Quaternion q = (*this);
         Quaternion qStar = (*this).conj();
         Quaternion rotatedVal = q * Quaternion(0, x, y, z) * qStar;
-                                
+
         x = rotatedVal.x_;
         y = rotatedVal.y_;
         z = rotatedVal.z_;
     }
 
 
-/** 
- * Quaternion Mathematical Properties 
+/**
+ * Quaternion Mathematical Properties
  * implemented below */
 
 /// Addition
         Quaternion operator+(const Quaternion& q2)
         {
             return Quaternion(  (w_ + q2.w_),
-                                (x_ + q2.x_), 
-                                (y_ + q2.y_), 
+                                (x_ + q2.x_),
+                                (y_ + q2.y_),
                                 (z_ + q2.z_));
         }
 
@@ -133,31 +133,31 @@ template <typename T> class Quaternion
                                 (scalar * q.y_),
                                 (scalar * q.z_));
         }
-                                
-/// Quaternion Product 
+
+/// Quaternion Product
         Quaternion operator*(const Quaternion& q2)
         {
-            return Quaternion(  
+            return Quaternion(
                         ((w_*q2.w_) - (x_*q2.x_) - (y_*q2.y_) - (z_*q2.z_)),
-                        ((w_*q2.x_) + (x_*q2.w_) + (y_*q2.z_) - (z_*q2.y_)), 
-                        ((w_*q2.y_) - (x_*q2.z_) + (y_*q2.w_) + (z_*q2.x_)), 
-                        ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_))); 
-        } 
+                        ((w_*q2.x_) + (x_*q2.w_) + (y_*q2.z_) - (z_*q2.y_)),
+                        ((w_*q2.y_) - (x_*q2.z_) + (y_*q2.w_) + (z_*q2.x_)),
+                        ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_)));
+        }
 
 /// Quaternion Power function
 /**
  * \fn static Quaternion power(const Quaternion q1, T p)
  * \brief perform the power operation on a quaternion
  * \details A quaternion Q = (w, x, y, z) may be written as the
- * product of a scalar and a unit quaternion: Q = N*q = 
+ * product of a scalar and a unit quaternion: Q = N*q =
  * N[sin(theta) + U_x*cos(theta) + U_y*cos(theta) + U_k*cos(theta)], where N is
  * a scalar and U is a vector3 (U_x, U_y, U_z) representing the normalized
- * vector component of the original quaternion, aka: (x,y,z). Raising a 
+ * vector component of the original quaternion, aka: (x,y,z). Raising a
  * quaternion to a power can be done most easily in this form.
  */
         static Quaternion power(Quaternion q1, T p)
         {
-            T magnitude = q1.norm();    
+            T magnitude = q1.norm();
 
             Quaternion unitQuaternion = q1;
             unitQuaternion.normalize();
@@ -170,7 +170,7 @@ template <typename T> class Quaternion
          // Perform math:
          // N^p * [cos(p * theta)  + U*sin(p * theta)], where U is a vector.
             T poweredMag = pow(magnitude, p);  // N^p
-            T cospTheta = cos(p * theta);   
+            T cospTheta = cos(p * theta);
             T sinpTheta = sin(p * theta);
 /*
             std::cout << "poweredMag is " << poweredMag << std::endl;
@@ -185,7 +185,7 @@ template <typename T> class Quaternion
                                poweredMag * unitQuaternion.x_ * sinpTheta,
                                poweredMag * unitQuaternion.y_ * sinpTheta,
                                poweredMag * unitQuaternion.z_ * sinpTheta);
-        } 
+        }
 
 /**
  * \fn static T dotProduct(Quaternion q1, Quaternion q2)
@@ -193,33 +193,33 @@ template <typename T> class Quaternion
  */
         static T dotProduct(Quaternion q1, Quaternion q2)
         {
-            T result = 0.5 * ((q1.conj() * q2) + (q1 * q2.conj()) ).w_; 
-            return result; 
+            T result = 0.5 * ((q1.conj() * q2) + (q1 * q2.conj()) ).w_;
+            return result;
         }
 
-/// Conjugate 
-        Quaternion conj() 
-        { 
-            return Quaternion(  w_, -x_, -y_, -z_); 
-        } 
+/// Conjugate
+        Quaternion conjugate()
+        {
+            return Quaternion(  w_, -x_, -y_, -z_);
+        }
 
-/// Norm 
-        T norm() 
-        { 
+/// Norm
+        T norm()
+        {
             return sqrt((w_ * w_) + (x_ * x_) + (y_ * y_) + (z_ * z_));
         }
 
 /// magnitude
         T magnitude()
         {
-            //return ((*this) * (*this).conj()).w_; 
+            //return ((*this) * (*this).conj()).w_;
             return (*this).norm();
         }
 
-/// inverse 
+/// inverse
         Quaternion inverse()
         {
-            return (1/(*this).norm()) * (*this).conj(); 
+            return (1/(*this).norm()) * (*this).conj();
         }
 
 // Normalization
@@ -231,27 +231,15 @@ template <typename T> class Quaternion
         {
             // should never happen unless the quaternion wasn't initialized
             // correctly.
-            // TODO: implement this in the main quaternion repo
             assert( !((w_ == 0) && (x_ == 0) && (y_ == 0) && (z_ == 0)));
             T theNorm = norm();
-            (*this) = (1.0/theNorm) * (*this); 
+            (*this) = (1.0/theNorm) * (*this);
             return;
         }
 
 
-// Unit Quaternion
-/** 
- * \fn Quaternion unit()
- * \brief returns the normalized version of the quaternion
- */
-        Quaternion unit()
-        {
-            T magnitude = norm();
-            return (1/magnitude) * (*this);
-        }
-
 /**
- * \fn static Quaternion slerp( Quaternion q1 Quaternion q2, 
+ * \fn static Quaternion slerp( Quaternion q1 Quaternion q2,
  *                                 T percentage)
  * \brief return a quaternion that is a linear interpolation between q1 and q2
  *        where percentage (from 0 to 1) defines the amount of interpolation
@@ -260,7 +248,7 @@ template <typename T> class Quaternion
  */
         static Quaternion slerp( Quaternion q1, Quaternion q2, T percentage)
         {
-            try 
+            try
             {
                 if ((percentage > 1) || (percentage < 0))
                     throw 0;
@@ -281,14 +269,14 @@ template <typename T> class Quaternion
             {
                 /// as theta --> 0, SLERP becomes LERP.
                 /// see Wikipedia slerp article.
-                leftCoeff = (1 - percentage);    
+                leftCoeff = (1 - percentage);
                 rightCoeff = percentage;
             }
             else
             {
                 leftCoeff = sin((1 - percentage) * theta)/
                               sin(theta);
-                rightCoeff  = sin(percentage * theta) / 
+                rightCoeff  = sin(percentage * theta) /
                                 sin(theta);
             }
 
@@ -298,13 +286,13 @@ template <typename T> class Quaternion
         }
 
 /**
- * \fn template <typename U> friend std::ostream& operator << 
+ * \fn template <typename U> friend std::ostream& operator <<
  *                                  (std::ostream& os, const Quaternion<U>& q);
  * \brief a templated friend function for printing quaternions.
  * \details T cannot be used as dummy parameter since it would be shared by
  *          the class, and this function is not a member function.
  */
-    template <typename U> friend std::ostream& operator << (std::ostream& os, 
+    template <typename U> friend std::ostream& operator << (std::ostream& os,
                                                     const Quaternion<U>& q);
 
         T w_;
@@ -315,13 +303,13 @@ template <typename T> class Quaternion
 
 
 
-template <typename T> std::ostream& operator<< (std::ostream& os, 
-                                const Quaternion<T>& q) 
+template <typename T> std::ostream& operator<< (std::ostream& os,
+                                const Quaternion<T>& q)
 {
     os << "(" << q.w_ << ", " <<
                  q.x_ << ", " <<
                  q.y_ << ", " <<
-                 q.z_ << ")"; 
+                 q.z_ << ")";
     return os;
 }
 

@@ -1,31 +1,62 @@
-#include "quaternion.hpp"
-#include "qpose.hpp"
+#include <gtest/gtest.h>
+#include <sstream>
+
+#include "../src/quaternion.hpp"
+#include "../src/qpose.hpp"
 #include <iostream>
 #include <ctgmath>
 
 
-int main(void)
+TEST (quaternion, defaultConstructor)
 {
-    Quaternion<float>* myQuat = new Quaternion<float>(1.0, 2.0, 3.0, 4.0);
+    //Quaternion<float>* myQuat = new Quaternion<float>(1.0, 2.0, 3.0, 4.0);
     Quaternion<float> myOtherQuat(1.0, 1.0, 0.0, 2.0);
-    
-/*
-    std::cout << "My Quaternion: " << *myQuat << std::endl;
-    std::cout << "My other Quaternion: " << myOtherQuat << std::endl;
-    
-    std::cout << "MyQuat to the power of 3 " 
-              << Quaternion<float>::power(*myQuat, 3) 
-              << std::endl;
-    std::cout << "MyQuat " << *myQuat << std::endl;
-    std::cout << "MyQuat * myQuat * myQuat = " << *myQuat * *myQuat * *myQuat 
-              << std::endl;
-    std::cout << "MyQuat magnitude " 
-              << Quaternion<float>::power(*myQuat, 3).magnitude()
-              << std::endl; 
-    std::cout << "MyQuat magnitude " << myQuat->magnitude() << std::endl;
+}
 
-    delete myQuat;
+TEST (quaternion, printing)
+{
+    std::stringstream buffer;
+    std::stringstream other_buffer;
+    Quaternion<float> my_quat(1.0, 1.0, 0.0, 2.0);
+    Quaternion<float> my_other_quat(1.6, 2.3, 0.0, -2.2);
+
+    buffer << my_quat;
+    ASSERT_STREQ(buffer.str().c_str(), "(1, 1, 0, 2)");
+
+
+    other_buffer << my_other_quat;
+    ASSERT_STREQ(other_buffer.str().c_str(), "(1.6, 2.3, 0, -2.2)");
+}
+
+
+TEST (quaternion, norm)
+{
+    Quaternion<float> my_quat(1, 2, 3, 4);
+    /// note quaternion components x,y,z returned from
+    /// my_quat * my_quat.conjugate() are zero.
+    ASSERT_FLOAT_EQ(sqrt((my_quat * my_quat.conjugate()).w_), my_quat.norm());
+}
+
+
+Test (quaternion, product)
+{
+    Quaternion<float> my_quat(1, 2, 3, 4);
+/// TODO: math here..
+}
+
+/*
+TEST (quaternion, power)
+{
+    Quaternion<float> my_quat(1, 2, 3, 4);
+    std::cout << my_quat << std::endl;
+
+    std::cout << "my_quat to the power of 3 " 
+              << Quaternion<float>::power(my_quat, 3) 
+              << std::endl;
+}
 */
+
+
 
 /*
     std::cout << "My Quaternion: " << *myQuat << std::endl;
@@ -124,6 +155,7 @@ int main(void)
 
     
 // testing!
+/*
     myQuat->encodeRotation(0, 0, 1, 0);
     myOtherQuat.encodeRotation(M_PI, 0, 1, 0);
 
@@ -138,5 +170,10 @@ int main(void)
         //std::cout << "percentage: " << i << std::endl;
         std::cout << "slerpOut magnitude: " << slerpOut.norm() << std::endl;
     }
+*/
 
+int main(int argc, char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
