@@ -88,7 +88,7 @@ template <typename T> class Quaternion
     void rotate(T& x, T& y, T& z)
     {
         Quaternion q = (*this);
-        Quaternion qStar = (*this).conj();
+        Quaternion qStar = (*this).conjugate();
         Quaternion rotatedVal = q * Quaternion(0, x, y, z) * qStar;
 
         x = rotatedVal.x_;
@@ -141,6 +141,7 @@ template <typename T> class Quaternion
                         ((w_*q2.w_) - (x_*q2.x_) - (y_*q2.y_) - (z_*q2.z_)),
                         ((w_*q2.x_) + (x_*q2.w_) + (y_*q2.z_) - (z_*q2.y_)),
                         ((w_*q2.y_) - (x_*q2.z_) + (y_*q2.w_) + (z_*q2.x_)),
+                        //((y_*q2.w_) + (z_*q2.x_) + (w_*q2.y_)  - (x_*q2.z_)),
                         ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_)));
         }
 
@@ -153,7 +154,7 @@ template <typename T> class Quaternion
  * N[sin(theta) + U_x*cos(theta) + U_y*cos(theta) + U_k*cos(theta)], where N is
  * a scalar and U is a vector3 (U_x, U_y, U_z) representing the normalized
  * vector component of the original quaternion, aka: (x,y,z). Raising a
- * quaternion to a power can be done most easily in this form.
+ * quaternion to a p._v.w*_v.y - rhs._v.x*_v.z + rhs._v.y*_v.w + rhs._v.z*_v.x,wer can be done most easily in this form.
  */
         static Quaternion power(Quaternion q1, T p)
         {
@@ -193,7 +194,8 @@ template <typename T> class Quaternion
  */
         static T dotProduct(Quaternion q1, Quaternion q2)
         {
-            T result = 0.5 * ((q1.conj() * q2) + (q1 * q2.conj()) ).w_;
+            T result = 0.5 * ((q1.conjugate() * q2)
+                       + (q1 * q2.conjugate()) ).w_;
             return result;
         }
 
