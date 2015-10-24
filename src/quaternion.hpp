@@ -65,18 +65,30 @@ template <typename T> class Quaternion
  */
     void getRotation( T& theta, T& x, T& y, T& z)
     {
-        // Acquire the amount of rotation.
-         theta = 2 * acos(w_);
+        // Acquire the amount of rotation. Prevent against rounding error.
+        if ((w_ > 1) || (w_ < -1))
+            theta = 2 * acos(1);
+        else
+            theta = 2 * acos(w_);
         /// The following is 'more numerically stable' according to Wikipedia:
         /// but it doesn't work as well for small angles.
         //theta = 2 * atan2( norm(), w_);
 
         T commonVal = sin(theta /2);
 
-        // Acquire rotational axis.
-        x = x_ / commonVal;
-        y = y_ / commonVal;
-        z = z_ / commonVal;
+        // Acquire rotational axis. Guard agains division by 0.
+        if (commonVal != 0)
+        {
+            x = x_ / commonVal;
+            y = y_ / commonVal;
+            z = z_ / commonVal;
+        }
+        else // Guard against division by zero. Values are bogus but ignored.
+        {
+            x = x_;
+            y = y_;
+            z = z_;
+        }
     }
 
 
@@ -119,6 +131,13 @@ template <typename T> class Quaternion
                                 (z_ - q2.z_));
         }
 
+/// equality
+        bool operator==(const Quaternion& q2) const
+        {
+            return (w_ == q2.w_) && (x_ == q2.x_)
+                && (y_ == q2.y_) && (z_ == q2.z_);
+        }
+
 /// (left) Scalar Multiplication
 /**
  * \fn template <typename U> friend Quaternion operator*(const U scalar,
@@ -141,7 +160,6 @@ template <typename T> class Quaternion
                         ((w_*q2.w_) - (x_*q2.x_) - (y_*q2.y_) - (z_*q2.z_)),
                         ((w_*q2.x_) + (x_*q2.w_) + (y_*q2.z_) - (z_*q2.y_)),
                         ((w_*q2.y_) - (x_*q2.z_) + (y_*q2.w_) + (z_*q2.x_)),
-                        //((y_*q2.w_) + (z_*q2.x_) + (w_*q2.y_)  - (x_*q2.z_)),
                         ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_)));
         }
 
@@ -211,17 +229,10 @@ template <typename T> class Quaternion
             return sqrt((w_ * w_) + (x_ * x_) + (y_ * y_) + (z_ * z_));
         }
 
-/// magnitude
-        T magnitude()
-        {
-            //return ((*this) * (*this).conj()).w_;
-            return (*this).norm();
-        }
-
 /// inverse
         Quaternion inverse()
         {
-            return (1/(*this).norm()) * (*this).conj();
+            return (1/(*this).norm()) * (*this).conjugate();
         }
 
 // Normalization
@@ -235,6 +246,7 @@ template <typename T> class Quaternion
             // correctly.
             assert( !((w_ == 0) && (x_ == 0) && (y_ == 0) && (z_ == 0)));
             T theNorm = norm();
+            assert(theNorm > 0);
             (*this) = (1.0/theNorm) * (*this);
             return;
         }

@@ -9,7 +9,6 @@
 
 TEST (quaternion, defaultConstructor)
 {
-    //Quaternion<float>* myQuat = new Quaternion<float>(1.0, 2.0, 3.0, 4.0);
     Quaternion<float> myOtherQuat(1.0, 1.0, 0.0, 2.0);
 }
 
@@ -37,11 +36,52 @@ TEST (quaternion, norm)
     ASSERT_FLOAT_EQ(sqrt((my_quat * my_quat.conjugate()).w_), my_quat.norm());
 }
 
-
-Test (quaternion, product)
+TEST (quaternion, equality)
 {
-    Quaternion<float> my_quat(1, 2, 3, 4);
-/// TODO: math here..
+    Quaternion<float> q1(1, 2, 3, 4);
+    Quaternion<float> q2 = q1;
+    ASSERT_EQ(q1, q2);
+
+}
+
+
+TEST (quaternion, product)
+{
+    Quaternion<float> q1(.182574, .365148, .547723, .730297);
+    Quaternion<float> q2(.17609, .440225, .880451, 0);
+    Quaternion<float> q3 = q1 * q2;
+
+/// expected product checked against Wolfram alpha
+    Quaternion<float> expected_q3(-.610841, -.4983182, .578691, .20897159);
+
+    q1.normalize();
+    q2.normalize();
+
+    ASSERT_FLOAT_EQ(q3.w_, expected_q3.w_);
+    ASSERT_FLOAT_EQ(q3.x_, expected_q3.x_);
+    ASSERT_FLOAT_EQ(q3.y_, expected_q3.y_);
+    ASSERT_FLOAT_EQ(q3.z_, expected_q3.z_);
+
+
+
+    Quaternion<float>q4;
+    Quaternion<float>q5;
+    Quaternion<float>rotation;
+    q4.encodeRotation(30 *(M_PI/180.), 1, 0, 0);
+    std::cout << q4 << std::endl;
+    q5.encodeRotation(20 *(M_PI/180.), 0, 0, 1);
+    std::cout << q5 << std::endl;
+
+    rotation = q4 * q5;
+    float angle;
+    float axis[3];
+
+    rotation.getRotation(angle, axis[0], axis[1], axis[2]);
+    std::cout << rotation << std::endl;
+    std::cout << "angle (deg): " << angle * (180./M_PI) << std::endl;
+    std::cout << "x: " << axis[0] << std::endl;
+    std::cout << "y: " << axis[1] << std::endl;
+    std::cout << "z: " << axis[2] << std::endl;
 }
 
 /*
