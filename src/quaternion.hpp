@@ -23,9 +23,12 @@
 template <typename T> class Quaternion
 {
     public:
-        Quaternion(){}
-        Quaternion( T w, T x, T y, T z):
-            w_(w), x_(x), y_(y), z_(z)
+        Quaternion()
+        : w_(1), x_(0), y_(0), z_(0)
+        {}
+
+        Quaternion( T w, T x, T y, T z)
+        : w_(w), x_(x), y_(y), z_(z)
         {}
 
         ~Quaternion()
