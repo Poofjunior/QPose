@@ -9,7 +9,12 @@
 #include "quaternion.hpp"
 #include <ctgmath>
 
-/// TODO: add a normalize function!
+/**
+ * \brief a dual quaternion class for encoding transformations.
+ * \details transformations are stored as first a translation; then a
+ *          rotation. It is possible to switch the order. See this paper:
+ *  https://www.thinkmind.org/download.php?articleid=intsys_v6_n12_2013_5
+ */
 
 template <typename T> class QPose
 {
@@ -19,6 +24,12 @@ template <typename T> class QPose
  */
         QPose()
         {}
+/*
+        : real_(1, 0, 0, 0)
+        {
+            dual_ = 0.5 * Quaternion<T>(0, 0, 0, 0) * real_;
+        }
+*/
 
 /**
  * \brief constructor that takes cartesian coordinates and Euler angles as
@@ -71,6 +82,17 @@ template <typename T> class QPose
         dual_ = 0.5 * Quaternion<T>(0, x, y, z) * real_;
     }
 
+/// handle accumulating error.
+    void normalizeRotation()
+    {
+        T x, y, z;
+        getTranslation(x, y, z);
+
+        real_.normalize();
+
+        encodeTranslation(x, y, z);
+    }
+
 
 /// Extracting Translation
 /**
@@ -82,7 +104,7 @@ template <typename T> class QPose
             Quaternion<T> result = 2 * dual_ * real_.conjugate();
             /// note: inverse of a quaternion is the same as the conjugate.
             x = result.x_;
-            y = result.y_;
+            y= result.y_;
             z = result.z_;
         }
 
@@ -97,6 +119,7 @@ template <typename T> class QPose
  */
         void getEuler( T& roll, T& pitch, T& yaw)
         {
+/// FIXME: breaks for some value around PI.
             roll = getRoll();
             pitch = getPitch();
             yaw = getYaw();
