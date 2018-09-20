@@ -31,6 +31,13 @@ template <typename T> class Quaternion
         : w_(w), x_(x), y_(y), z_(z)
         {}
 
+        static Quaternion fromAngleAxis(T theta, T x, T y, T z)
+        {
+            Quaternion q;
+            q.encodeRotation(theta, x, y, z);
+            return q;
+        }
+
         ~Quaternion()
         {}
 
@@ -41,11 +48,10 @@ template <typename T> class Quaternion
  */
 
 /**
- * \fn void encodeRotation( T theta, T x, T y, T z)
  * \brief Store a normalized rotation in the quaternion encoded as a rotation
  *        of theta about the vector (x,y,z).
  */
-        void encodeRotation( T theta, T x, T y, T z)
+        void encodeRotation( const T theta, const T x, const T y, const T z)
         {
             w_ = cos(theta / 2);
             x_ = x * sin(theta / 2);
@@ -55,7 +61,14 @@ template <typename T> class Quaternion
         }
 
 /**
- * \fn void getRotation( T& angle, T& x, T& y, T& z)
+ * \brief same as encodeRotation
+ */
+        void setAngleAxis( const T theta, const T x, const T y, const T z)
+        {
+            encodeRotation(theta, x, y, z);
+        }
+
+/**
  * \brief Retrieve the rotation (angle and vector3) stored in the quaternion.
  * \warning only unit quaternions represent rotation.
  * \details A quaternion:
@@ -66,7 +79,7 @@ template <typename T> class Quaternion
             about the vector U.
  * \note the angle retrieved is in radians.
  */
-    void getRotation( T& theta, T& x, T& y, T& z)
+    void getAngleAxis( T& theta, T& x, T& y, T& z)
     {
         // Acquire the amount of rotation. Prevent against rounding error.
         if ((w_ > 1) || (w_ < -1))
@@ -96,14 +109,13 @@ template <typename T> class Quaternion
 
 
 /**
- * \fn void rotate( T& x, T& y, T& z)
  * \brief rotate a vector3 (x,y,z) by the angle theta about the axis
  * (U_x, U_y, U_z) stored in the quaternion.
  */
-    void rotate(T& x, T& y, T& z)
+    void rotateVector(T& x, T& y, T& z)
     {
         Quaternion q = (*this);
-        Quaternion qStar = (*this).conjugate();
+        Quaternion qStar = conjugate();
         Quaternion rotatedVal = q * Quaternion(0, x, y, z) * qStar;
 
         x = rotatedVal.x_;
@@ -143,8 +155,6 @@ template <typename T> class Quaternion
 
 /// (left) Scalar Multiplication
 /**
- * \fn template <typename U> friend Quaternion operator*(const U scalar,
- *                                                       const Quaternion& q)
  * \brief implements scalar multiplication for arbitrary scalar types.
  */
         template <typename U> friend Quaternion operator*(const U scalar,
@@ -156,6 +166,7 @@ template <typename T> class Quaternion
                                 (scalar * q.z_));
         }
 
+
 /// Quaternion Product
         Quaternion operator*(const Quaternion& q2)
         {
@@ -166,9 +177,41 @@ template <typename T> class Quaternion
                         ((w_*q2.z_) + (x_*q2.y_) - (y_*q2.x_) + (z_*q2.w_)));
         }
 
+/// "Product" Assignment
+// TODO: test --> check multiplication between two different quaternions.
+// TODO: test --> check self-multiplication.
+        Quaternion& operator*=(const Quaternion& q)
+        {
+            T w = w_;
+            T x = x_;
+            T y = y_;
+            T z = z_;
+
+            if (this == &q)
+            {
+                T w2 = w_;
+                T x2 = x_;
+                T y2 = y_;
+                T z2 = z_;
+
+                w_ = (w*w2) - (x*x2) - (y*y2) - (z*z2);
+                x_ = (w*x2) + (x*w2) + (y*z2) - (z*y2);
+                y_ = (w*y2) - (x*z2) + (y*w2) + (z*x2);
+                z_ = (w*z2) + (x*y2) - (y*x2) + (z*w2);
+            }
+            else
+            {
+                w_ = (w*q.w_) - (x*q.x_) - (y*q.y_) - (z*q.z_);
+                x_ = (w*q.x_) + (x*q.w_) + (y*q.z_) - (z*q.y_);
+                y_ = (w*q.y_) - (x*q.z_) + (y*q.w_) + (z*q.x_);
+                z_ = (w*q.z_) + (x*q.y_) - (y*q.x_) + (z*q.w_);
+            }
+            return *this;
+        }
+
+
 /// Quaternion Power function
 /**
- * \fn static Quaternion power(const Quaternion q1, T p)
  * \brief perform the power operation on a quaternion
  * \details A quaternion Q = (w, x, y, z) may be written as the
  * product of a scalar and a unit quaternion: Q = N*q =
@@ -177,7 +220,7 @@ template <typename T> class Quaternion
  * vector component of the original quaternion, aka: (x,y,z). Raising a
  * quaternion to a p._v.w*_v.y - rhs._v.x*_v.z + rhs._v.y*_v.w + rhs._v.z*_v.x,wer can be done most easily in this form.
  */
-        static Quaternion power(Quaternion q1, T p)
+        static Quaternion power(const Quaternion q1, T p)
         {
             T magnitude = q1.norm();
 
@@ -210,10 +253,9 @@ template <typename T> class Quaternion
         }
 
 /**
- * \fn static T dotProduct(Quaternion q1, Quaternion q2)
  * \brief returns the dot product of two quaternions.
  */
-        static T dotProduct(Quaternion q1, Quaternion q2)
+        static T dotProduct(const Quaternion q1, const Quaternion q2)
         {
             T result = 0.5 * ((q1.conjugate() * q2)
                        + (q1 * q2.conjugate()) ).w_;
@@ -256,14 +298,13 @@ template <typename T> class Quaternion
 
 
 /**
- * \fn static Quaternion slerp( Quaternion q1 Quaternion q2,
- *                                 T percentage)
  * \brief return a quaternion that is a linear interpolation between q1 and q2
  *        where percentage (from 0 to 1) defines the amount of interpolation
  * \details morph one quaternion into the other with constant 'velocity.'
  *          Implementation details from Wikipedia article on Slerp.
  */
-        static Quaternion slerp( Quaternion q1, Quaternion q2, T percentage)
+        static Quaternion slerp(const Quaternion q1, const Quaternion q2,
+                                T percentage)
         {
             try
             {

@@ -76,7 +76,7 @@ TEST (quaternion, product)
     float angle;
     float axis[3];
 
-    rotation.getRotation(angle, axis[0], axis[1], axis[2]);
+    rotation.getAngleAxis(angle, axis[0], axis[1], axis[2]);
     std::cout << rotation << std::endl;
     std::cout << "angle (deg): " << angle * (180./M_PI) << std::endl;
     std::cout << "x: " << axis[0] << std::endl;
@@ -125,7 +125,7 @@ TEST (quaternion, power)
     rotQuat.encodeRotation(M_PI/2, 0, 0, 1);
 
     float rotQuatTheta, rotQuatX, rotQuatY, rotQuatZ;
-    rotQuat.getRotation(rotQuatTheta, rotQuatX, rotQuatY, rotQuatZ);
+    rotQuat.getAngleAxis(rotQuatTheta, rotQuatX, rotQuatY, rotQuatZ);
 
     std::cout << "rotQuatTheta should be pi/2 and it's: " << rotQuatTheta 
               << std::endl;
@@ -170,7 +170,7 @@ TEST (quaternion, power)
     std::cout << "Vector3 before rotation: (" << v_x << ", " << v_y << ", " 
               << v_z << ")" << std::endl;
 
-    rotationZ.rotate(v_x, v_y, v_z);
+    rotationZ.rotateVector(v_x, v_y, v_z);
 
     std::cout << "Vector3 after rotation: (" << v_x << ", " << v_y << ", " 
               << v_z << ")" << std::endl;
@@ -185,7 +185,7 @@ TEST (quaternion, power)
     std::cout << "myNewPose is: " << myNewPose << std::endl;
 
     std::cout << " Input Rotation is: " << qRot << std::endl;
-    std::cout << "Rotation quaternion is: " << myNewPose.getRotation()  
+    std::cout << "Rotation quaternion is: " << myNewPose.getAngleAxis()  
               << std::endl;
     
     std::cout << " Input Translation is: " << qTrans << std::endl;
